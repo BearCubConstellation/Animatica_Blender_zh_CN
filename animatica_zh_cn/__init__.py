@@ -2,7 +2,7 @@
 """Animatica 简体中文伴随插件；不包含或改写官方插件。"""
 bl_info = {
     'name': 'Animatica 简体中文（独立汉化）',
-    'author': 'Local companion translation',
+    'author': 'Cymrise',
     'version': (1, 0, 0),
     'blender': (5, 1, 0),
     'location': 'Preferences > Add-ons > Animatica 简体中文',

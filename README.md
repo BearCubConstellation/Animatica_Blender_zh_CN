@@ -4,6 +4,8 @@
 
 本项目为非官方社区汉化，与 Animatica 官方无隶属关系。使用前需要单独安装 [Animatica 官方插件](https://github.com/animatica-ai/animatica-blender-plugin)。本仓库不包含官方插件、模型或账号信息。
 
+汉化包维护者：**Cymrise**。
+
 ## 效果预览
 
 下图来自独立测试配置中的真实 Blender 界面。Blender 菜单仍为英文，Animatica 面板和浮动工具栏显示中文。
