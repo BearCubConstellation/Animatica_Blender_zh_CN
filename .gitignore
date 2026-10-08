@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.work/
+.venv/
+.idea/
+.vscode/
+*.blend
+*.blend1
+animatica_missing_zh.json
+userpref.blend
+*.log
