@@ -139,7 +139,10 @@ class UITransformer(ast.NodeTransformer):
             elif node.func.attr in {'strip', 'rstrip', 'lstrip', 'capitalize'}:
                 node.func.value = self.literal(node.func.value)
         elif isinstance(node, ast.Name):
-            if node.id not in {'text', 'title', 'label', 'line', 'message', 'msg', 'detail', 'hint', 'suffix', 'status', 'state', 'tip', 'note', 'who', 'where', 'parts', 'length'}:
+            names = {'text', 'title', 'label', 'line', 'message', 'msg', 'detail', 'hint', 'suffix', 'status', 'state', 'tip', 'note', 'who', 'where', 'parts', 'length'}
+            if self.module.endswith('.guidance'):
+                names.update({'why', 'count'})
+            if node.id not in names:
                 return node
             # Resolve only local display variables; never chase attributes/user data.
             for scope in reversed(self.bindings):
@@ -175,7 +178,10 @@ class UITransformer(ast.NodeTransformer):
         collect(node.body)
         self.bindings.append(bindings)
         # Blender uses description() return values as tooltips.
-        if node.name == 'description' or (self.module.endswith('.toolbar') and node.name in {'tip', '_waypoint_hint', '_describe_blocker'}):
+        if node.name == 'description' or (self.module.endswith('.toolbar') and node.name in {
+            'tip', '_waypoint_hint', '_describe_blocker', '_batch_tip',
+            '_batch_review_tip', '_clipboard_tip', '_names',
+        }) or (self.module.endswith('.retarget') and node.name == 'selection_label'):
             for child in ast.walk(node):
                 if isinstance(child, ast.Return) and child.value:
                     child.value = self.literal(child.value)
@@ -183,7 +189,13 @@ class UITransformer(ast.NodeTransformer):
             for child in ast.walk(node):
                 if isinstance(child, ast.Assign) and any(isinstance(t, ast.Tuple) and [getattr(v, 'id', '') for v in t.elts] == ['title', 'line'] for t in child.targets) and isinstance(child.value, ast.Tuple):
                     child.value = self.display_tree(child.value)
-                if isinstance(child, ast.AugAssign) and isinstance(child.target, ast.Name) and child.target.id in {'title', 'line'}:
+        # New hints and clipboard tooltips build their display text in pieces.
+        # Only follow variables already identified as display slots, preserving
+        # readiness reasons and other values used by the official control flow.
+        if self.module.endswith(('.toolbar', '.guidance')):
+            display_names = {'title', 'line'} if self.module.endswith('.toolbar') else {'text', 'why'}
+            for child in ast.walk(node):
+                if isinstance(child, ast.AugAssign) and isinstance(child.target, ast.Name) and child.target.id in display_names:
                     child.value = self.literal(child.value)
         self.generic_visit(node)
         self.bindings.pop()
@@ -210,7 +222,7 @@ class UITransformer(ast.NodeTransformer):
         name = node.func.attr if isinstance(node.func, ast.Attribute) else node.func.id if isinstance(node.func, ast.Name) else ''
         prop = name.endswith('Property')
         for kw in node.keywords:
-            if kw.arg in {'text', 'heading'} or (kw.arg in {'label', 'description', 'name'} and (prop or name == 'Item')) or (kw.arg == 'why' and self.module.endswith('.guidance')):
+            if kw.arg in {'text', 'heading'} or (kw.arg in {'label', 'description', 'name'} and (prop or name == 'Item')) or (kw.arg == 'why' and self.module.endswith(('.guidance', '.retarget'))):
                 kw.value = self.literal(kw.value)
             if prop and kw.arg == 'items':
                 self.collect_enums(kw.value)

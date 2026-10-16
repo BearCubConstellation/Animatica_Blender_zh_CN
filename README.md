@@ -6,9 +6,13 @@
 
 汉化包维护者：**Cymrise**。
 
+**[⬇ 一键下载最新版汉化安装包](https://github.com/BearCubConstellation/Animatica_Blender_zh_CN/releases/latest/download/Animatica_zh_CN.zip)** · **[版本说明与下载页](https://github.com/BearCubConstellation/Animatica_Blender_zh_CN/releases/latest)**
+
+下载 ZIP 后，在 Blender 中选择 **Install from Disk…** 安装，无需解压、下载源码或运行脚本。汉化包与官方插件需要分别安装。
+
 ## 效果预览
 
-下图来自独立测试配置中的真实 Blender 界面。Blender 菜单仍为英文，Animatica 面板和浮动工具栏显示中文。
+下图为此前 0.7.0-preview3 的独立测试配置实拍，用于展示汉化效果；新版 1.0.4 的布局和按钮有所调整。Blender 菜单仍为英文，Animatica 面板和浮动工具栏显示中文。
 
 ![Animatica 中文面板和浮动工具栏](docs/images/interface.png)
 
@@ -20,15 +24,17 @@
 
 | 项目 | 当前状态 |
 | --- | --- |
-| 汉化包版本 | 1.0.0 |
+| 汉化包版本 | 1.1.0 |
 | 已验证系统 | Windows |
 | 已验证 Blender | 5.1.2（面向 5.1 系列） |
-| 已验证 Animatica | 0.7.0-preview3 |
-| 译文词条 | 1124 条 |
-| 静态扫描结果 | 识别的 1096 条界面文案均已收录 |
+| 已验证 Animatica | Choreographer 1.0.4；已测试从 0.7.0-preview3 升级 |
+| 译文词条 | 1530 条 |
+| 静态扫描结果 | 1.0.4 中识别的 895 条界面文案均已收录 |
 | 中文字体 | 使用系统中已有的中文字体，不随包分发字体 |
 
 静态覆盖率只代表扫描器识别到的文案，不代表所有运行时场景均已验证。其他系统、Blender 版本及未来 Animatica 版本需要额外验证。
+
+本次新增工具栏折叠、复制/粘贴动作、多角色生成和审阅等文案。官方 1.0 起将手动姿态编辑拆分为独立的 **Animatica Marionette**，该独立插件的内部界面不在本次汉化范围内。
 
 ## 可以汉化哪些内容
 
@@ -42,7 +48,9 @@
 
 ### 1. 下载可安装包
 
-打开 [dist 目录](dist)，下载 **`Animatica_简体中文_1.0.0.zip`**。在 GitHub 文件页面中点击下载原始文件的按钮即可。
+点击 **[下载最新版安装包](https://github.com/BearCubConstellation/Animatica_Blender_zh_CN/releases/latest/download/Animatica_zh_CN.zip)**，得到 `Animatica_zh_CN.zip`。
+
+也可打开 **[Releases 下载页](https://github.com/BearCubConstellation/Animatica_Blender_zh_CN/releases/latest)**，在 **Assets** 下下载安装包、中文安装说明或 `SHA256SUMS.txt` 校验文件。`Animatica_zh_CN.zip` 与同版本的 `Animatica_简体中文_1.1.0.zip` 内容相同，任选一个即可。
 
 请使用这个插件 ZIP 安装。GitHub 页面绿色 **Code → Download ZIP** 下载的是整个源码工程，不能直接作为插件安装。
 
@@ -51,7 +59,7 @@
 1. 先安装并启用官方 Animatica 插件。
 2. 打开 **Edit → Preferences → Add-ons**（编辑 → 偏好设置 → 插件）。
 3. 在插件页面右上方菜单中选择 **Install from Disk…**（从磁盘安装）。
-4. 选择下载好的 `Animatica_简体中文_1.0.0.zip`，完成安装。
+4. 选择下载好的 `Animatica_zh_CN.zip`，完成安装。
 5. 搜索 `Animatica`，启用 **Animatica 简体中文（独立汉化）**。
 6. 保存偏好设置，然后**完全关闭并重新启动 Blender**。
 
@@ -62,6 +70,10 @@
 *上图保留汉化插件设置区域，并隐藏了本机文件路径。*
 
 首次安装后必须重启。汉化需要在官方插件加载前生效，仅关闭并重新打开面板通常不够。
+
+### 已安装旧版汉化包
+
+先保存工作并关闭其他 Blender 窗口，再通过 **Install from Disk…** 安装新版汉化 ZIP，替换旧版。启用汉化、保存偏好设置并完全重启。展开插件后应显示版本 **1.1.0**。官方 Animatica 仍通过其自己的更新功能升级。
 
 ## 官方插件如何更新
 
@@ -149,6 +161,7 @@ docs/验证说明.md     验收范围与限制
 tests/              单元测试和隔离 Blender 测试脚本
 tools/build.py      生成可安装 ZIP 和校验文件
 tools/validate_blender.py  在临时配置中运行集成和重启测试
+.github/workflows/release.yml  提交时测试打包，推送版本标签时自动发布安装包
 dist/               可安装插件 ZIP、简短安装说明和 SHA-256 校验
 LICENSE             GPL-3.0 许可证全文
 ```
@@ -164,19 +177,24 @@ python tools/build.py
 
 # 隔离测试：自行填写 Blender 和已安装官方插件的实际路径
 python tools/validate_blender.py --blender "D:/Blender/Blender 5.1/blender.exe" --addon "你的官方插件目录/animatica_blender"
+
+# 验证最终安装包；可选 --previous-addon "旧版插件目录/animatica_blender" 测试跨版本替换
+python tools/validate_blender.py --blender "D:/Blender/Blender 5.1/blender.exe" --addon "新版插件目录/animatica_blender" --package "dist/Animatica_zh_CN.zip"
 ```
 
-集成测试将官方插件复制到新建临时目录，再测试注册、语言切换、真实官方目录替换函数及三次重启。它不下载官方新版本，不启动云端生成，也不改变当前工作配置。测试结果写入 `.work/`，该目录不会提交到 Git。
+集成测试将官方插件复制到系统临时目录（避免官方更新器拒绝 Git 工程中的安装），再测试注册、语言切换、真实官方目录替换函数及三次重启。它不下载官方新版本，不启动云端生成，也不改变当前工作配置。测试结果写入 `.work/`，该目录不会提交到 Git。
+
+维护者发布：更新插件版本、词库、本文及 `docs/release-notes.md`，通过测试后推送同名 `vX.Y.Z` 标签。GitHub Actions 会检查版本一致性、打包并将可安装 ZIP 上传到 Releases；普通提交也会测试和生成构建产物。
 
 ## 已完成的验证
 
-- 9 项单元测试通过，包括用户数据保留、内部枚举标识保留、字体隔离、未知文案回退、适配失败回退和 Python 注解语义。
-- 在隔离配置中调用官方更新器的目录替换函数，验证同版本替换后汉化包仍存在、汉化重新生效。
+- 13 项单元测试通过，包括用户数据保留、内部枚举标识保留、字体隔离、未知文案回退、适配失败回退、Python 注解语义、新版动态提示及全部译文占位符。
+- 使用最终安装 ZIP，在隔离配置中调用官方更新器，验证 1.0.4 同版本替换及 0.7.0-preview3 → 1.0.4 跨版本替换，汉化包仍存在、汉化重新生效。
 - 中文 → 英文 → 中文三个独立重启场景通过。
-- 使用独立 GUI 测试配置检查面板、浮动工具栏、时间轴和设置，并取得本文截图。
-- 实际安装目录中 133 个官方文件的内容哈希保持一致（忽略 Python 缓存）。
+- 自动检查 1.0.4 的折叠工具栏、复制/粘贴动作标签与工具提示。本文 GUI 截图保留自此前版本，本轮未重新进行 GUI 验收。
+- 新旧版官方源目录的文件内容哈希保持一致（忽略 Python 缓存）。
 
-未验证真实跨版本升级、云端生成和所有 DPI/布局组合。更多说明见 [验证说明](docs/验证说明.md)。
+未验证在线更新下载、云端生成、Marionette 内部界面和所有 DPI/布局组合。更多说明见 [验证说明](docs/验证说明.md)。
 
 ## 许可证与来源
 

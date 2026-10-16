@@ -1,4 +1,4 @@
-import bpy, sys, json, pathlib, shutil, hashlib, addon_utils, importlib
+import bpy, sys, json, pathlib, shutil, hashlib, addon_utils, importlib, os, ast
 base = pathlib.Path(__file__).resolve().parents[1]
 scripts = pathlib.Path(bpy.utils.user_resource('SCRIPTS', create=True))
 sys.path.insert(0, str(scripts / 'addons'))
@@ -30,15 +30,21 @@ import blf
 assert mod.toolbar.blf is not blf and not isinstance(blf, core.FontProxy)
 
 # Exercise the actual official swap routine on a disposable installed copy.
+before_version = mod.VERSION_TAG
 target = pathlib.Path(mod.__file__).parent
 stage = scripts / 'addons' / '.animatica-update-test'
 stage.mkdir(exist_ok=True)
-shutil.copytree(target, stage / 'new' / 'animatica_blender', ignore=shutil.ignore_patterns('__pycache__'))
+update_source = pathlib.Path(os.environ.get('ANIMATICA_ZH_UPDATE_SOURCE', target))
+shutil.copytree(update_source, stage / 'new' / 'animatica_blender', ignore=shutil.ignore_patterns('__pycache__'))
+update_tree = ast.parse((update_source / '__init__.py').read_text(encoding='utf-8'))
+update_tag = next(ast.literal_eval(n.value) for n in update_tree.body if isinstance(n, ast.Assign)
+                  and any(isinstance(t, ast.Name) and t.id == 'VERSION_TAG' for t in n.targets))
 future = stage / 'new' / 'animatica_blender' / 'future_ui.py'
 future.write_text('def draw(layout):\n    layout.label(text="Brand new untranslated control")\n', encoding='utf-8')
-mod.updater._swap(str(stage), mod.VERSION_TAG)
+mod.updater._swap(str(stage), update_tag)
 mod = sys.modules['animatica_blender']
 assert mod.__addon_enabled__
+assert mod.VERSION_TAG == update_tag
 assert mod.operators.ANIMATICA_OT_generate.bl_label == '生成动作'
 assert (scripts / 'addons' / 'animatica_zh_cn' / 'zh_CN.json').exists()
 future_mod = importlib.import_module('animatica_blender.future_ui')
@@ -47,6 +53,11 @@ class Capture:
 capture = Capture(); future_mod.draw(capture)
 assert capture.text == 'Brand new untranslated control'
 assert 'Brand new untranslated control' in core.STATUS['missing']
+if mod.bl_info['version'] >= (1, 0, 4):
+    assert mod.toolbar.ANIMATICA_OT_toolbar_close.bl_label == '折叠工具栏'
+    assert mod.retarget.ANIMATICA_OT_copy_motion.bl_label == '复制动作'
+    assert mod.retarget.ANIMATICA_OT_paste_motion.bl_label == '粘贴动作'
+    assert '折叠' in mod.toolbar.tip(bpy.context, mod.toolbar.Item('close_bar', ''))
 
 # Disable translation, reload official source, then re-enable it. No .blend is saved.
 prefs = bpy.context.preferences.addons['animatica_zh_cn'].preferences
@@ -64,6 +75,7 @@ assert mod.operators.ANIMATICA_OT_generate.bl_label == '生成动作'
 assert bpy.context.preferences.view.language == language
 bpy.ops.wm.save_userpref()
 report = {'blender': bpy.app.version_string, 'language_unchanged': language,
+          'official_before': before_version, 'official_after': mod.VERSION_TAG,
           'adapted_modules': len(core.STATUS['adapted']), 'replacements': sum(core.STATUS['adapted'].values()),
           'official_swap_passed': True, 'language_switch_passed': True, 'unknown_text_fallback_passed': True,
           'skipped': core.STATUS['skipped']}

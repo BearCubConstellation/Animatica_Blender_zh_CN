@@ -3,7 +3,7 @@
 bl_info = {
     'name': 'Animatica 简体中文（独立汉化）',
     'author': 'Cymrise',
-    'version': (1, 0, 0),
+    'version': (1, 1, 0),
     'blender': (5, 1, 0),
     'location': 'Preferences > Add-ons > Animatica 简体中文',
     'description': '仅汉化 Animatica，保留官方更新；安装或切换后重启生效',

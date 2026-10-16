@@ -8,6 +8,7 @@ import os
 import shutil
 import subprocess
 import tempfile
+import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -19,19 +20,40 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--blender', type=Path, required=True)
     parser.add_argument('--addon', type=Path, required=True, help='官方 animatica_blender 目录')
+    parser.add_argument('--package', type=Path, help='改为验证已构建的汉化 ZIP 安装包')
+    parser.add_argument('--previous-addon', type=Path, help='先加载旧版，再用官方更新器替换为 --addon 指定的新版')
     args = parser.parse_args()
     official, blender = args.addon.resolve(), args.blender.resolve()
     if not blender.is_file() or not (official / '__init__.py').is_file():
         parser.error('Blender 可执行文件或官方插件目录不存在')
+    previous = args.previous_addon.resolve() if args.previous_addon else official
+    if not (previous / '__init__.py').is_file():
+        parser.error('旧版官方插件目录不存在')
     scratch = ROOT / '.work'
     scratch.mkdir(exist_ok=True)
-    isolated = Path(tempfile.mkdtemp(prefix='validation-', dir=scratch))
+    # The official updater refuses any installation underneath a Git checkout.
+    isolated = Path(tempfile.mkdtemp(prefix='animatica-zh-validation-'))
+    reports = scratch / isolated.name
+    reports.mkdir()
     addons = isolated / 'scripts/addons'
     addons.mkdir(parents=True)
     baseline = hashes(official)
-    shutil.copytree(official, addons / 'animatica_blender', ignore=shutil.ignore_patterns('__pycache__'))
-    shutil.copytree(ROOT / 'animatica_zh_cn', addons / 'animatica_zh_cn', ignore=shutil.ignore_patterns('__pycache__'))
-    env = dict(os.environ, BLENDER_USER_RESOURCES=str(isolated), ANIMATICA_ZH_TEST_OUTPUT=str(isolated))
+    previous_baseline = hashes(previous)
+    shutil.copytree(previous, addons / 'animatica_blender', ignore=shutil.ignore_patterns('__pycache__'))
+    if args.package:
+        with zipfile.ZipFile(args.package) as archive:
+            if archive.testzip() or 'animatica_zh_cn/__init__.py' not in archive.namelist():
+                parser.error('汉化安装包损坏或缺少插件入口')
+            for name in archive.namelist():
+                if name.startswith('animatica_zh_cn/'):
+                    target = (addons / name).resolve()
+                    if not target.is_relative_to(addons.resolve()):
+                        parser.error('安装包含无效路径')
+                    archive.extract(name, addons)
+    else:
+        shutil.copytree(ROOT / 'animatica_zh_cn', addons / 'animatica_zh_cn', ignore=shutil.ignore_patterns('__pycache__'))
+    env = dict(os.environ, BLENDER_USER_RESOURCES=str(isolated), ANIMATICA_ZH_TEST_OUTPUT=str(reports))
+    env['ANIMATICA_ZH_UPDATE_SOURCE'] = str(official)
     for key in ('CONFIG', 'SCRIPTS', 'DATAFILES', 'EXTENSIONS'):
         path = isolated / key.lower()
         path.mkdir(exist_ok=True)
@@ -46,7 +68,7 @@ def main():
             command += ['--', *extra]
         result = subprocess.run(command, env=env, capture_output=True, timeout=180)
         log = (result.stdout + result.stderr).decode('utf-8', errors='replace')
-        (isolated / f'{script}-{extra[0] if extra else "integration"}.log').write_text(log, encoding='utf-8')
+        (reports / f'{script}-{extra[0] if extra else "integration"}.log').write_text(log, encoding='utf-8')
         if result.returncode:
             raise RuntimeError(log[-8000:])
 
@@ -59,8 +81,10 @@ def main():
     finally:
         if hashes(official) != baseline:
             raise RuntimeError('官方安装目录哈希发生变化')
+        if hashes(previous) != previous_baseline:
+            raise RuntimeError('旧版官方安装目录哈希发生变化')
     print('集成测试和中文/英文/中文重启测试通过。真实官方文件未改变。')
-    print(f'测试报告保存在：{isolated}')
+    print(f'测试报告保存在：{reports}')
 
 if __name__ == '__main__':
     main()

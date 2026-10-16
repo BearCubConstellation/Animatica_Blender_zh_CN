@@ -1,4 +1,5 @@
-import ast, importlib.util, pathlib, unittest, sys
+import ast, importlib.util, pathlib, unittest, sys, string
+from collections import Counter
 base = pathlib.Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('core', base / 'animatica_zh_cn/core.py')
 core = importlib.util.module_from_spec(spec)
@@ -59,7 +60,7 @@ def ui(error):
             def size(self, font, size): return font, size
             def dimensions(self, font, text): return font, text
         original = BLF()
-        with patch.object(pathlib.Path, 'exists', return_value=True):
+        with patch.object(pathlib.Path, 'is_file', return_value=True):
             proxy = core.FontProxy(original)
         self.assertEqual(proxy.size(0, 11), (77, 11))
         self.assertEqual(proxy.dimensions(0, '中文'), (77, '中文'))
@@ -69,6 +70,43 @@ def ui(error):
         node = ast.parse(src).body[0].value
         transformer = core.UITransformer('animatica_blender.test', {'Generation failed: {0}': '失败 {99}'})
         self.assertIs(transformer.literal(node), node)
+    def test_catalog_placeholders(self):
+        formatter = string.Formatter()
+        for english, chinese in core.CATALOG.items():
+            fields = lambda text: Counter(f for _, f, _, _ in formatter.parse(text) if f is not None)
+            with self.subTest(english=english):
+                self.assertEqual(fields(english), fields(chinese))
+    def test_new_clipboard_tooltip_preserves_character_data(self):
+        ns = self.run_source('''
+def _clipboard_tip(character):
+    line = f"{character} has no animation to copy. Select a character that has one"
+    line += "\\nSign in to Animatica first: the motion is retargeted on Animatica's servers"
+    return line
+''', 'animatica_blender.toolbar')
+        result = ns['_clipboard_tip']('Keep')
+        self.assertEqual(result, 'Keep 没有可复制的动画，请选择有动画的角色\n请先登录 Animatica：动作将在 Animatica 服务器上重定向')
+    def test_new_guidance_translates_explanations_and_counts(self):
+        ns = self.run_source('''
+def hint(name):
+    count = f"{2} characters"
+    text = f"Ready: Generate {count}, all doing {name}'s prompts"
+    why = "Every block has a prompt, so Generate makes the motion. Without key poses the model decides every pose itself. To steer it, pose the character "
+    return dict(text=text, why=why)
+''', 'animatica_blender.guidance')
+        result = ns['hint']('Generate')
+        self.assertEqual(result['text'], '准备就绪：生成 2 个角色，全部使用 Generate 的提示词')
+        self.assertIn('每个片段都有提示词', result['why'])
+    def test_readiness_reasons_remain_identifiers(self):
+        ns = self.run_source('''
+def batch_readiness():
+    why = "no prompt"
+    return why
+def _batch_tip():
+    ready = batch_readiness()
+    line = "None of the selected characters can go yet: "
+    return ready == "no prompt", line
+''', 'animatica_blender.toolbar')
+        self.assertEqual(ns['_batch_tip'](), (True, '选中角色均未准备好：'))
     def test_hook_idempotence(self):
         before = list(sys.meta_path)
         core.install(); core.install()

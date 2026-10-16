@@ -1,1 +1,2 @@
-ec8f602680ceb149f07d59fa8ed3d1cd36533f51e2ad694f9a22de6bf41d6cc4  Animatica_简体中文_1.0.0.zip
+251a07e955ee4587d6cf5db15fb52e90a1c9e935be58f394f40cdf81310c8568  Animatica_zh_CN.zip
+251a07e955ee4587d6cf5db15fb52e90a1c9e935be58f394f40cdf81310c8568  Animatica_简体中文_1.1.0.zip

@@ -9,3 +9,4 @@ __pycache__/
 animatica_missing_zh.json
 userpref.blend
 *.log
+dist/Animatica_zh_CN.zip
