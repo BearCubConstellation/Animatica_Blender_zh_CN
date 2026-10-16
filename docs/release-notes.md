@@ -1,12 +1,16 @@
-适配 **Animatica Choreographer 1.0.4**，汉化包版本 **1.1.0**。
+适配 **Animatica Choreographer 1.0.4**，汉化包版本 **1.1.1**。
 
 ## 下载与安装
 
-普通用户下载下方 **`Animatica_zh_CN.zip`** 即可，也可选择同版本中文文件名的 ZIP，两者内容相同。请勿下载 **Source code** 源码包。
+普通用户下载下方 **`Animatica_zh_CN.zip`** 即可，也可选择带版本号的 ZIP，两者内容相同。请勿下载 **Source code** 源码包。
 
 先安装并启用官方 Animatica，然后在 Blender 中打开 **Edit → Preferences → Add-ons → Install from Disk…**，选择汉化 ZIP，启用“Animatica 简体中文（独立汉化）”，保存偏好设置并完全重启。无需解压或运行脚本。旧用户同样通过安装新版 ZIP 更新。
 
-## 本次更新
+## 1.1.1 打包修正
+
+GitHub 会改写中文附件名，本版统一使用英文附件名，并同步校验文件。中文安装说明以 `INSTALL_zh_CN.md` 提供。1.1.0 的汉化内容保持不变。
+
+## 汉化更新
 
 - 新增 406 条译文，词库合计 1530 条；1.0.4 静态扫描识别的 895 条界面文案全部收录。
 - 补齐工具栏折叠/展开、动作复制粘贴、多角色生成与批量审阅等文案。

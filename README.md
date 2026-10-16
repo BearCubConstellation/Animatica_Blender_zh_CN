@@ -24,7 +24,7 @@
 
 | 项目 | 当前状态 |
 | --- | --- |
-| 汉化包版本 | 1.1.0 |
+| 汉化包版本 | 1.1.1 |
 | 已验证系统 | Windows |
 | 已验证 Blender | 5.1.2（面向 5.1 系列） |
 | 已验证 Animatica | Choreographer 1.0.4；已测试从 0.7.0-preview3 升级 |
@@ -50,7 +50,7 @@
 
 点击 **[下载最新版安装包](https://github.com/BearCubConstellation/Animatica_Blender_zh_CN/releases/latest/download/Animatica_zh_CN.zip)**，得到 `Animatica_zh_CN.zip`。
 
-也可打开 **[Releases 下载页](https://github.com/BearCubConstellation/Animatica_Blender_zh_CN/releases/latest)**，在 **Assets** 下下载安装包、中文安装说明或 `SHA256SUMS.txt` 校验文件。`Animatica_zh_CN.zip` 与同版本的 `Animatica_简体中文_1.1.0.zip` 内容相同，任选一个即可。
+也可打开 **[Releases 下载页](https://github.com/BearCubConstellation/Animatica_Blender_zh_CN/releases/latest)**，在 **Assets** 下下载安装包、中文安装说明或 `SHA256SUMS.txt` 校验文件。`Animatica_zh_CN.zip` 与同版本的 `Animatica_zh_CN_1.1.1.zip` 内容相同，任选一个即可。
 
 请使用这个插件 ZIP 安装。GitHub 页面绿色 **Code → Download ZIP** 下载的是整个源码工程，不能直接作为插件安装。
 
@@ -73,7 +73,7 @@
 
 ### 已安装旧版汉化包
 
-先保存工作并关闭其他 Blender 窗口，再通过 **Install from Disk…** 安装新版汉化 ZIP，替换旧版。启用汉化、保存偏好设置并完全重启。展开插件后应显示版本 **1.1.0**。官方 Animatica 仍通过其自己的更新功能升级。
+先保存工作并关闭其他 Blender 窗口，再通过 **Install from Disk…** 安装新版汉化 ZIP，替换旧版。启用汉化、保存偏好设置并完全重启。展开插件后应显示版本 **1.1.1**。官方 Animatica 仍通过其自己的更新功能升级。
 
 ## 官方插件如何更新
 

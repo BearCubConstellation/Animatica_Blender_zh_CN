@@ -32,7 +32,7 @@ def main():
             parser.error(f'译文占位符不匹配：{english!r}')
     output = ROOT / 'dist'
     output.mkdir(exist_ok=True)
-    archive = output / f'Animatica_简体中文_{version}.zip'
+    archive = output / f'Animatica_zh_CN_{version}.zip'
     allowed = {'.py', '.json', '.txt'}
     files = sorted(p for p in PACKAGE.rglob('*') if p.is_file() and p.suffix in allowed and '__pycache__' not in p.parts)
     with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED) as z:
@@ -51,6 +51,7 @@ def main():
     # A stable ASCII filename supports a permanent one-click download link.
     download = output / 'Animatica_zh_CN.zip'
     shutil.copyfile(archive, download)
+    (output / 'INSTALL_zh_CN.md').write_bytes((output / '安装说明.md').read_text(encoding='utf-8').encode('utf-8'))
     (output / 'SHA256SUMS.txt').write_text(f'{digest}  {download.name}\n{digest}  {archive.name}\n', encoding='utf-8')
     if os.environ.get('GITHUB_OUTPUT'):
         with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as stream:
