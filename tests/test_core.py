@@ -62,8 +62,8 @@ def ui(error):
         original = BLF()
         with patch.object(pathlib.Path, 'is_file', return_value=True):
             proxy = core.FontProxy(original)
-        self.assertEqual(proxy.size(0, 11), (77, 11))
-        self.assertEqual(proxy.dimensions(0, '中文'), (77, '中文'))
+            self.assertEqual(proxy.size(0, 11), (77, 11))
+            self.assertEqual(proxy.dimensions(0, '中文'), (77, '中文'))
         self.assertEqual(original.size(0, 11), (0, 11))
     def test_invalid_translation_falls_back(self):
         src = "value = f'Generation failed: {error}'"
